@@ -1,13 +1,17 @@
 import React, { RefObject } from 'react'
 import { animated, useSpring } from 'react-spring';
 
-export type RevealerProps = {
+export type RevealerBaseProps = {
   reveal?: boolean;
   target?: JSX.Element;
   direction?: "horizontal" | "vertical";
 }
 
-const Revealer: React.FC<RevealerProps> = (props) => {
+export type RevealerProps = RevealerBaseProps & {
+  alternate?: boolean;
+}
+
+const RevealerBase: React.FC<RevealerBaseProps> = (props) => {
   const {target, reveal, direction} = props;
   const containerRef = React.useRef<HTMLDivElement>(null);
   const targetContainerRef = React.useRef<HTMLDivElement>(null);
@@ -51,6 +55,33 @@ const Revealer: React.FC<RevealerProps> = (props) => {
       </div>
     </animated.div>
   );
+}
+
+const Revealer: React.FC<RevealerProps> = (props) => {
+  const {
+    alternate,
+    direction: initialDirection,
+    reveal,
+    target,
+  } = props;
+
+  const [direction, setDirection] = React.useState(initialDirection);
+
+  React.useEffect(() => {
+    if (!reveal && alternate) {
+      if (direction === "horizontal") {
+        setDirection("vertical");
+      } else {
+        setDirection("horizontal");
+      }
+    }
+  }, [reveal])
+
+  return <RevealerBase
+    direction={direction}
+    reveal={reveal}
+    target={target}
+  />
 }
 
 export default Revealer

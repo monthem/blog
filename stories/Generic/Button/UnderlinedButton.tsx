@@ -3,7 +3,7 @@ import { animated, useSpring } from 'react-spring';
 import styled, { CSSProperties } from 'styled-components';
 import AnimatedRect from '../AnimatedRect/AnimatedRect';
 
-export type UnderlinedButtonProps = {
+export type UnderlinedButtonBaseProps = {
   active?: boolean;
   direction?: "vertical" | "horizontal";
   color?: CSSProperties["color"];
@@ -13,7 +13,11 @@ export type UnderlinedButtonProps = {
   style?: CSSProperties;
 }
 
-const UnderlinedButton: React.FC<UnderlinedButtonProps> = (props) => {
+export type UnderlinedButtonProps = UnderlinedButtonBaseProps & {
+  alternate?: boolean;
+}
+
+const UnderlinedButtonBase: React.FC<UnderlinedButtonBaseProps> = (props) => {
   const {
     children,
     active,
@@ -65,6 +69,41 @@ const UnderlinedButton: React.FC<UnderlinedButtonProps> = (props) => {
       </div>
     </div>
   )
+}
+
+const UnderlinedButton: React.FC<UnderlinedButtonProps> = (props) => {
+  const {
+    active,
+    color,
+    activeColor,
+    alternate,
+    direction: initialDirection,
+    style,
+    underlineColor,
+    underlineHeight,
+  } = props;
+
+  const [direction, setDirection] = React.useState(initialDirection);
+
+  React.useEffect(() => {
+    if (!active && alternate) {
+      if (direction === "horizontal") {
+        setDirection("vertical");
+      } else {
+        setDirection("horizontal");
+      }
+    }
+  }, [active])
+
+  return <UnderlinedButtonBase
+    active={active}
+    color={color}
+    activeColor={activeColor}
+    direction={direction}
+    style={style}
+    underlineColor={underlineColor}
+    underlineHeight={underlineHeight}
+  />
 }
 
 export default UnderlinedButton
