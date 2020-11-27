@@ -1,6 +1,5 @@
 import React, { Component, RefObject, StyleHTMLAttributes } from 'react'
-import { getCenterPos, getElementAngle } from '../../utils/htmlElement';
-import { clampNumber, getAngle, getDistance, getNewPos,  } from '../../utils/number';
+import { clampNumber, getAngle, getDistance, getNewPos,  } from '../../../utils/number';
 
 export type JoystickProps = {
   strokeWidth?: number;
