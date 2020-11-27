@@ -1,3 +1,6 @@
+import chalk from 'chalk';
+import { isAllTrue } from './condition';
+
 type Position = {
   x: number;
   y: number;
@@ -29,4 +32,26 @@ export const getNewPos = (param: GetNewPosParam) => {
   result.x = Math.round(Math.cos(angle * Math.PI / 180) * distance + origin.x);
   result.y = Math.round(Math.sin(angle * Math.PI / 180) * distance + origin.y);
   return result;
+}
+
+type InterpolationParam = {
+  input: number[];
+  output: number[];
+}
+
+export const interpolate = (param: InterpolationParam) => {
+  const {input, output} = param;
+  const paramIsOk = isAllTrue([
+    [input.length < 2, `${chalk.red("Length limit")} of single interpolate is 2`],
+    [input.length === output.length, `Inputs and outputs should have the ${chalk.red("same length of factors")}`]
+  ])
+  if (!paramIsOk) return;
+  const [minInput, maxInput] = input;
+  const [minOutput, maxOutput] = output;
+  const outputDiff = maxOutput - minOutput;
+  const inputDiff = maxInput - minInput;
+  return (value: number) => {
+    const progress = (value - minInput) / inputDiff;
+    return minOutput + progress * outputDiff;
+  }
 }
