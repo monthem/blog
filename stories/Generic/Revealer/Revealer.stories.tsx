@@ -2,7 +2,7 @@ import { defineModule, defineStory, defineTemplate } from "../../../utils/story"
 import Revealer from "./Revealer";
 
 export default defineStory({
-  title: "Generic/Revealer",
+  title: "Generic/Revealer/Basic",
   component: Revealer,
 })
 
