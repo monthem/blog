@@ -42,8 +42,8 @@ type InterpolationParam = {
 export const interpolate = (param: InterpolationParam) => {
   const {input, output} = param;
   const paramIsOk = isAllTrue([
-    [input.length < 2, `${chalk.red("Length limit")} of single interpolate is 2`],
-    [input.length === output.length, `Inputs and outputs should have the ${chalk.red("same length of factors")}`]
+    input.length === 2,
+    input.length === output.length,
   ])
   if (!paramIsOk) return;
   const [minInput, maxInput] = input;
