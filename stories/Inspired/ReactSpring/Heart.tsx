@@ -4,102 +4,20 @@ import { animated, SpringConfig, useSpring, useSprings, useTrail } from 'react-s
 import { Trail } from 'react-spring/renderprops'
 import styled, { css, CSSProperties } from 'styled-components'
 import {v4 as uuidv4} from 'uuid';
+import _styled from './_styled';
+import _util from './_util';
+import {animate} from 'popmotion';
 
-const commonCss = css`
-  box-sizing: border-box;
-  position: absolute;
-`;
+const {HeartAnimationDefinition, HeartParts, idxToPart} = _util;
+const fast: SpringConfig = {tension: 1200, friction: 60, velocity: 100};
+const slow: SpringConfig = {tension: 600, friction: 30, velocity: 10};
 
-const HeartBottom = styled(animated.div)`
-  width: 100px;
-  height: 120px;
-  background-color: dodgerblue;
-  border-radius: 50%;
-  border-bottom: 20px solid blue;
-  ${commonCss}
-`;
-
-
-
-const HeartLeft = styled(animated.div)`
-  width: 100px;
-  height: 150px;
-  background-color: springgreen;
-  border-radius: 50%;
-  border-left: 10px solid mediumseagreen;
-  border-right: 20px solid mediumseagreen;
-  ${commonCss}
-`;
-
-const HeartRight = styled(animated.div)`
-  width: 100px;
-  height: 150px;
-  background-color: orange;
-  border-radius: 50%;
-  border-right: 20px solid firebrick;
-  border-left: 10px solid firebrick;
-  border-bottom: 20px solid firebrick;
-  ${commonCss}
-`;
-
-const HeartTop = styled(animated.div)`
-  width: 140px;
-  height: 140px;
-  background-color: red;
-  border-radius: 50%;
-  border: 30px solid firebrick;
-  z-index: -1;
-  ${commonCss};
-`;
-
-type HeartPartDirection = "top" | "left" | "right" | "bottom";
-
-const idxToPart = {
-  0: "bottom",
-  1: "left",
-  2: "right",
-  3: "top",
-} as const;
-
-const HeartParts: {[T in HeartPartDirection]: typeof HeartTop} = {
-  top: HeartTop,
-  left: HeartLeft,
-  right: HeartRight,
-  bottom: HeartBottom,
+type HeartProps = {
+  showBareOnTouch?: boolean;
 }
 
-const HeartAnimationDefinition: {
-  [T in HeartPartDirection]: {
-    rest: CSSProperties["transform"],
-    pump: CSSProperties["transform"],
-  }
-} = {
-  top: {
-    rest: "scale(1) rotateX(-30deg) rotateY(-5deg) translate3d(0px, -80px, 0px)",
-    pump: "scale(0.9) rotateX(-10deg) rotateY(-15deg) translate3d(0px, -80px, 0px)"
-  },
-  left: {
-    rest: "scale(1) rotateY(10deg) translate3d(-10px, 0px, 0px)",
-    pump: "scale(1.1) rotateY(-10deg) translate3d(-10px, -20px, 0px)",
-  },
-  right: {
-    rest: "scale(1) rotateY(10deg) translate3d(60px, -10px, 0px)",
-    pump: "scale(1.1) rotateY(20deg) translate3d(60px, -20px, 0px)"
-  },
-  bottom: {
-    rest: "scaleY(1) rotateY(0deg) translate3d(30px, 60px, 0px)",
-    pump: "scaleY(0.95) rotateY(20deg) translate3d(30px, 55px, 0px)",
-  }
-}
-
-const Flex = styled.div`
-  display: flex;
-`;
-
-const fast: SpringConfig = {tension: 1200, friction: 60};
-const slow: SpringConfig = {tension: 600, friction: 30};
-
-const Heart = () => {
+const Heart: React.FC<HeartProps> = (props) => {
+  const {showBareOnTouch} = props;
   const blurRef = React.useRef<SVGFEGaussianBlurElement>();
   const shouldBlur = React.useRef<boolean>(false);
   const [pumpCycle, setPumpCycle] = React.useState(0);
@@ -113,50 +31,29 @@ const Heart = () => {
   }
 
   const removeBlur = () => {
-    let start = -1;
-    shouldBlur.current = false;
-    const easing = d3.easeQuad;
-    const duration = 200;
-    const initialStdDeviation = Number(blurRef.current.getAttribute("stdDeviation"));
-    
-    const step = (timestamp: number) => {
-      if (shouldBlur.current) return;
-      if (start === -1) start = timestamp;
-      const elapsed = timestamp - start;
-      const progress = elapsed / duration;
-      if (progress < 1) {
-        setBlurStrength(initialStdDeviation * easing(1 - progress))
-        requestAnimationFrame(step);
-      } else {
-        setBlurStrength(0);
-      }
-    }
-
-    requestAnimationFrame(step);
+    if (!showBareOnTouch) return;
+    const animation = animate({
+      from: Number(blurRef.current.getAttribute("stdDeviation")),
+      to: 0,
+      onPlay: () => shouldBlur.current = false,
+      onUpdate: (v) => {
+        setBlurStrength(v);
+        if (shouldBlur.current) animation.stop();
+      },
+    })
   }
 
   const coverBlur = () => {
-    let start = -1;
-    shouldBlur.current = true;
-    const duration = 200;
-    const initialStdDeviation = Number(blurRef.current.getAttribute("stdDeviation"));
-    const stdDeviationDiff = 20 - initialStdDeviation;
-    const easing = d3.easeQuad;
-
-    const step = (timestamp: number) => {
-      if (!shouldBlur.current) return;
-      if (start === -1) start = timestamp;
-      const elapsed = timestamp - start;
-      const progress = elapsed / duration;
-      if (progress < 1) {
-        setBlurStrength(initialStdDeviation + stdDeviationDiff * easing(progress))
-        requestAnimationFrame(step);
-      } else {
-        setBlurStrength(20);
+    if (!showBareOnTouch) return;
+    const animation = animate({
+      from: Number(blurRef.current.getAttribute("stdDeviation")),
+      to: 20,
+      onPlay: () => shouldBlur.current = true,
+      onUpdate: (v) => {
+        setBlurStrength(v);
+        if (!shouldBlur.current) animation.stop();
       }
-    }
-
-    requestAnimationFrame(step);
+    })
   }
 
   return (
@@ -170,7 +67,15 @@ const Heart = () => {
         </feComponentTransfer>
       </filter>
     </svg>
-    <Flex onMouseEnter={removeBlur} onMouseLeave={coverBlur} style={{alignItems: "center", width: 200, height: 200, filter: "url(#blobby)"}}>
+    <div
+      onMouseEnter={removeBlur}
+      onMouseLeave={coverBlur}
+      style={{
+        width: 240,
+        height: 300,
+        filter: "url(#blobby)",
+      }}>
+      <div style={{marginLeft: "18%", marginTop: "35%"}}>
       <Trail
         items={Array(4).fill("")}
         keys={() => uuidv4()}
@@ -187,7 +92,8 @@ const Heart = () => {
           return <Part style={{transform}} />
         }}
       </Trail>
-    </Flex>
+      </div>
+    </div>
     </>
   )
 }
