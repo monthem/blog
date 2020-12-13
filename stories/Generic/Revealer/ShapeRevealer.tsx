@@ -50,7 +50,7 @@ const MaskedDiv = styled.div<MaskedDivProps>`
 `;
 
 type ShapeRevealerProps = MaskedDivProps & {
-  children?: JSX.Element;
+  children?: React.ReactNode;
   precedingColor?: CSSProperties["backgroundColor"];
   backgroundColorOnEnd?: CSSProperties["backgroundColor"];
   style?: CSSProperties;
