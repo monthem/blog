@@ -13,5 +13,7 @@ export const Example = defineModule(Template, {
     <div style={{fontWeight: "bolder", color: "white", userSelect: "none"}}>
       이렇게
     </div>
-  )
+  ),
+  outlineColor: "rgba(0,0,0,0)",
+  outlineWidth: 0,
 });

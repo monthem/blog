@@ -11,7 +11,7 @@ const normalizeColor = (rgba: [number, number, number, number]) => {
 }
 
 export type DropShadowProps = {
-  children: JSX.Element;
+  children: React.ReactNode;
   shadowColor?: CSSProperties["backgroundColor"];
   /**@param blurRadius works on discrete mode */
   blurRadius?: number;
@@ -23,6 +23,8 @@ export type DropShadowProps = {
   /**@param angle defines shadow offset angle in degree */
   angle?: number;
   fixedStep?: number;
+  outlineColor?: CSSProperties["backgroundColor"];
+  outlineWidth?: number;
 }
 
 const DropShadow: React.FC<DropShadowProps> = (props) => {
@@ -35,12 +37,15 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
     interval,
     angle,
     fixedStep,
+    outlineColor,
+    outlineWidth,
   } = props;
 
   const [r,g,b,a] = normalizeColor(chroma(shadowColor).rgba());
+  const [or, og, ob, oa] = normalizeColor(chroma(outlineColor).rgba());
   const requiedOffestCount = mode === "discrete" 
     ? 1 
-    : fixedStep || Math.ceil(offset / interval);
+    : fixedStep || Math.max(Math.ceil(offset / interval), 0);
   const baseDistance = (mode === "discrete" || mode === "continuos" && fixedStep !== undefined) ? offset : interval;
   const dxConstant = baseDistance * Math.cos(angle * Math.PI / 180);
   const dyConstant = baseDistance * Math.sin(angle * Math.PI / 180);
@@ -78,7 +83,7 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
           {feMergeNodesForOffset}
         </feMerge>
         {/* To support gradient, I can apply feColorMatrix to each offset by collecting appropriate color by using chroma */}
-        <feColorMatrix result="colored" in="offOut" type="matrix"
+        <feColorMatrix result="colored-shadow" in="offOut" type="matrix"
           values={`
             1 0 0 0 ${r}
             0 1 0 0 ${g}
@@ -86,8 +91,17 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
             0 0 0 ${a} 0
           `}
         />
+        <feMorphology result="morph" in="offOut" radius={outlineWidth} operator="erode" />
+        <feComposite result="outline" in="offOut" in2="morph" operator="out" />
+        <feColorMatrix result="colored-outline" in="outline" type="matrix" values={`
+          1 0 0 0 ${or}
+          0 1 0 0 ${og}
+          0 0 1 0 ${ob}
+          0 0 0 ${oa} 0
+        `} />
         {blur}
-        <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+        <feComposite result="shadow" in="colored-outline" in2="colored-shadow" operator="over" />
+        <feBlend in="SourceGraphic" in2="shadow" mode="normal" />
       </filter>
     </InvisibleSvg>
     <FitContent style={{filter: `url(#${filterId})`}}>
@@ -104,6 +118,8 @@ DropShadow.defaultProps = {
   interval: 2,
   offset: 10,
   angle: 45,
+  outlineColor: "black",
+  outlineWidth: 1,
 }
 
 export default DropShadow
