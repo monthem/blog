@@ -4,8 +4,8 @@ import { wrapStart } from 'react-use-gesture/dist/hooks/useGesture';
 import { getAngle, getDistance } from '../../../utils/number';
 import DropShadow, { DropShadowProps } from '../../Filter/DropShadow';
 
-type ShadowResponderProps = {
-  children: JSX.Element;
+type ShadowMoveResponderProps = {
+  children: React.ReactNode;
   shadowColor?: DropShadowProps["shadowColor"];
   shadowType?: DropShadowProps["mode"];
   interval?: DropShadowProps["interval"];
@@ -21,7 +21,7 @@ type ShadowResponderProps = {
   pixelToOffsetRatio?: number;
 }
 
-const ShadowResponder: React.FC<ShadowResponderProps> = (props) => {
+const ShadowMoveResponder: React.FC<ShadowMoveResponderProps> = (props) => {
   const {
     children,
     shadowColor,
@@ -76,7 +76,7 @@ const ShadowResponder: React.FC<ShadowResponderProps> = (props) => {
   )
 }
 
-ShadowResponder.defaultProps = {
+ShadowMoveResponder.defaultProps = {
   interval: 2,
   maxOffset: 10,
   minOffset: 0,
@@ -87,4 +87,4 @@ ShadowResponder.defaultProps = {
   fixedStep: 5,
 }
 
-export default ShadowResponder
+export default ShadowMoveResponder

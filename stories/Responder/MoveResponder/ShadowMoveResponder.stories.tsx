@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import {defineModule, defineStory, defineTemplate} from '../../../utils/story'
-import ShadowResponder from './ShadowResponder';
+import ShadowMoveResponder from './ShadowMoveResponder';
 
 const TestText = styled.div`
   font-weight: 900;
@@ -9,11 +9,11 @@ const TestText = styled.div`
 `;
 
 export default defineStory({
-  title: "Responder/CursorResponder/ShadowResponder",
-  component: ShadowResponder,
+  title: "Responder/MoveResponder/ShadowMoveResponder",
+  component: ShadowMoveResponder,
 })
 
-const Template = defineTemplate(ShadowResponder);
+const Template = defineTemplate(ShadowMoveResponder);
 
 export const Example = defineModule(Template, {
   children: (
