@@ -1,7 +1,8 @@
 import React from 'react'
 import styled, { CSSProperties } from 'styled-components';
-import InvisibleSvg from '../_Styled/InvisibleSvg';
+import {FitContent, InvisibleSvg} from '../_Styled';
 import chroma from 'chroma-js';
+import {v4 as uuidv4} from 'uuid';
 
 const normalizeColor = (rgba: [number, number, number, number]) => {
   const [r, g, b, a] = rgba;
@@ -9,13 +10,7 @@ const normalizeColor = (rgba: [number, number, number, number]) => {
   return [r/max, g/max, b/max, a];
 }
 
-const Container = styled.div`
-  width: fit-content;
-  height: fit-content;
-  filter: url(#drop-shadow);
-`;
-
-type DropShadowProps = {
+export type DropShadowProps = {
   children: JSX.Element;
   shadowColor?: CSSProperties["backgroundColor"];
   /**@param blurRadius works on discrete mode */
@@ -27,6 +22,7 @@ type DropShadowProps = {
   interval?: number;
   /**@param angle defines shadow offset angle in degree */
   angle?: number;
+  fixedStep?: number;
 }
 
 const DropShadow: React.FC<DropShadowProps> = (props) => {
@@ -38,34 +34,45 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
     offset,
     interval,
     angle,
+    fixedStep,
   } = props;
 
   const [r,g,b,a] = normalizeColor(chroma(shadowColor).rgba());
-  const requiedOffestCount = mode === "discrete" ? 1 : Math.ceil(offset / interval);
-  const baseDistance = mode === "discrete" ? offset : interval;
+  const requiedOffestCount = mode === "discrete" 
+    ? 1 
+    : fixedStep || Math.ceil(offset / interval);
+  const baseDistance = (mode === "discrete" || mode === "continuos" && fixedStep !== undefined) ? offset : interval;
   const dxConstant = baseDistance * Math.cos(angle * Math.PI / 180);
   const dyConstant = baseDistance * Math.sin(angle * Math.PI / 180);
+  const nodeId = React.useRef(uuidv4()).current;
+  const filterId = `${nodeId}-drop-shadow`;
 
-  const feOffsets = Array(requiedOffestCount).fill(0).map((_, i) => (
+  const feOffsets = Array(requiedOffestCount).fill(0).map((_, i) => {
+    const multiplier = mode === "continuos" && fixedStep !== undefined ? (i + 1) / fixedStep : (i + 1);
+    return (
     <feOffset
-      key={`offOut${i}`}
+      key={`${nodeId}-offOut${i}`}
       result={`offOut${i}`}
       in="SourceAlpha"
-      dx={dxConstant * (i + 1)}
-      dy={dyConstant * (i + 1)}
+      dx={dxConstant * multiplier}
+      dy={dyConstant * multiplier}
     />
-  ));
+  )});
 
   const feMergeNodesForOffset = Array(requiedOffestCount).fill(0).map((_, i) => (
-    <feMergeNode key={`offOut${i}`} in={`offOut${i}`} />
+    <feMergeNode key={`${nodeId}-offOut${i}`} in={`offOut${i}`} />
   ))
 
-  const blur = mode === "discrete" ? <feGaussianBlur stdDeviation={blurRadius} /> : <></>;
+  const blur = mode === "discrete" 
+    ? blurRadius > 0 
+      ? <feGaussianBlur stdDeviation={blurRadius} /> 
+      : <></>
+    : <></>;
 
   return (
     <>
     <InvisibleSvg>
-      <filter x={-offset/2} y={-offset/2} width={offset} height={offset} id="drop-shadow">
+      <filter x="-50%" y="-50%" width="200%" height="200%" id={filterId}>
         {feOffsets}
         <feMerge result="offOut">
           {feMergeNodesForOffset}
@@ -83,9 +90,9 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
         <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
       </filter>
     </InvisibleSvg>
-    <Container>
+    <FitContent style={{filter: `url(#${filterId})`}}>
       {children}
-    </Container>
+    </FitContent>
     </>
   )
 }
@@ -94,7 +101,7 @@ DropShadow.defaultProps = {
   shadowColor: "blue",
   blurRadius: 0,
   mode: "continuos",
-  interval: 0.5,
+  interval: 2,
   offset: 10,
   angle: 45,
 }
