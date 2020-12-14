@@ -11,6 +11,8 @@ type ShadowHoverResponderProps = {
   shadowColor?: CSSProperties["backgroundColor"];
   offsetOnHover?: number;
   offsetOnIdle?: number;
+  outlineColor?: CSSProperties["backgroundColor"];
+  outlineWidth?: number;
   shadowAngle?: number;
   children: React.ReactNode;
   shadowInterval?: number;
@@ -25,6 +27,8 @@ const ShadowHoverResponder: React.FC<ShadowHoverResponderProps> = (props) => {
     offsetOnIdle,
     shadowAngle,
     shadowInterval,
+    outlineColor,
+    outlineWidth,
   } = props;
   const [offset, setOffset] = React.useState(offsetOnIdle);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -52,7 +56,13 @@ const ShadowHoverResponder: React.FC<ShadowHoverResponderProps> = (props) => {
 
   return (
     <FitContent {...bind()}>
-      <DropShadow offset={offset} interval={shadowInterval} angle={shadowAngle} shadowColor={shadowColor}>
+      <DropShadow
+        offset={offset}
+        interval={shadowInterval}
+        angle={shadowAngle}
+        outlineColor={outlineColor}
+        outlineWidth={outlineWidth}
+        shadowColor={shadowColor}>
         <FitContent ref={containerRef} style={style}>
           {children}
         </FitContent>
@@ -67,6 +77,8 @@ ShadowHoverResponder.defaultProps = {
   shadowColor: "dodgerblue",
   shadowAngle: 45,
   shadowInterval: 1,
+  outlineWidth: 1,
+  outlineColor: "black",
 }
 
 export default ShadowHoverResponder

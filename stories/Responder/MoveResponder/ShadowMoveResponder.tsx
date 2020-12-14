@@ -11,6 +11,8 @@ type ShadowMoveResponderProps = {
   interval?: DropShadowProps["interval"];
   blurRadius?: DropShadowProps["blurRadius"];
   fixedStep?: DropShadowProps["fixedStep"];
+  outlineColor?: DropShadowProps["outlineColor"];
+  outlineWidth?: DropShadowProps["outlineWidth"];
   minOffset?: number;
   maxOffset?: number;
   /**@param pixelToOffsetRatio
@@ -31,6 +33,8 @@ const ShadowMoveResponder: React.FC<ShadowMoveResponderProps> = (props) => {
     shadowType,
     blurRadius,
     fixedStep,
+    outlineColor,
+    outlineWidth,
   } = props;
   const pixelToOffsetRatio = Math.max(props.pixelToOffsetRatio, 1);
   const [angle, setAngle] = React.useState(0);
@@ -68,6 +72,8 @@ const ShadowMoveResponder: React.FC<ShadowMoveResponderProps> = (props) => {
       offset={offset}
       blurRadius={blurRadius}
       angle={angle}
+      outlineColor={outlineColor}
+      outlineWidth={outlineWidth}
       fixedStep={fixedStep}>
       <div ref={childContainerRef} style={{width: "fit-content", height: "fit-content"}}>
         {children}
@@ -85,6 +91,8 @@ ShadowMoveResponder.defaultProps = {
   blurRadius: 2,
   pixelToOffsetRatio: 100,
   fixedStep: 5,
+  outlineColor: "black",
+  outlineWidth: 1,
 }
 
 export default ShadowMoveResponder
