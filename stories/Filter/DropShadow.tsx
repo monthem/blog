@@ -4,12 +4,6 @@ import {FitContent, InvisibleSvg} from '../_Styled';
 import chroma from 'chroma-js';
 import {v4 as uuidv4} from 'uuid';
 
-const normalizeColor = (rgba: [number, number, number, number]) => {
-  const [r, g, b, a] = rgba;
-  const max = Math.max(r, g, b) || 1;
-  return [r/max, g/max, b/max, a];
-}
-
 export type DropShadowProps = {
   children: React.ReactNode;
   shadowColor?: CSSProperties["backgroundColor"];
@@ -41,8 +35,8 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
     outlineWidth,
   } = props;
 
-  const [r,g,b,a] = normalizeColor(chroma(shadowColor).rgba());
-  const [or, og, ob, oa] = normalizeColor(chroma(outlineColor).rgba());
+  const [r,g,b,a] = chroma(shadowColor).gl();
+  const [or, og, ob, oa] = chroma(outlineColor).gl();
   const requiedOffestCount = mode === "discrete" 
     ? 1 
     : fixedStep || Math.max(Math.ceil(offset / interval), 0);

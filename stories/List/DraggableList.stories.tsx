@@ -49,7 +49,8 @@ export const Example = defineModule(Template, {
         onMouseOut={() => setSpring({boxShadow: "0px 0px 10px rgba(0,0,0,0.5)"})}
         style={{paddingTop: 10, paddingBottom: 10}}>
         <animated.div style={{
-          padding: 10 * (i + 1),
+          paddingTop: 10 * (i + 1),
+          paddingBottom: 10 * (i + 1),
           width: 300,
           backgroundColor: chroma.random().hex(),
           display: "flex",
@@ -62,8 +63,6 @@ export const Example = defineModule(Template, {
           textShadow: "1px 1px 0px black",
           userSelect: "none",
           ...spring,
-          // marginBottom: 10,
-          // marginTop: 10,
         }}>
           {name} is {age} years old!
         </animated.div>
