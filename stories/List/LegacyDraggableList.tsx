@@ -37,6 +37,11 @@ const update = (arr: any[], originalIndex: number, newIndex: number) => {
   return result;
 }
 
+/* Limitation
+  1. Item size should be same for each.
+  2. Item height should be predicted before renderding items.
+*/
+
 const LegacyDraggableList: React.FC<DraggableListProps> = (props) => {
   const {items} = props;
   const nodeId = React.useRef(v4()).current;
