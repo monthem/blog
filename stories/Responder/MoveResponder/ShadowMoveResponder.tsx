@@ -74,7 +74,8 @@ const ShadowMoveResponder: React.FC<ShadowMoveResponderProps> = (props) => {
       angle={angle}
       outlineColor={outlineColor}
       outlineWidth={outlineWidth}
-      fixedStep={fixedStep}>
+      fixedStep={fixedStep}
+      animated={false}>
       <div ref={childContainerRef} style={{width: "fit-content", height: "fit-content"}}>
         {children}
       </div>

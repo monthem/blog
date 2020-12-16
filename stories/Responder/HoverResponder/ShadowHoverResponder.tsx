@@ -62,7 +62,8 @@ const ShadowHoverResponder: React.FC<ShadowHoverResponderProps> = (props) => {
         angle={shadowAngle}
         outlineColor={outlineColor}
         outlineWidth={outlineWidth}
-        shadowColor={shadowColor}>
+        shadowColor={shadowColor}
+        animated={false}>
         <FitContent ref={containerRef} style={style}>
           {children}
         </FitContent>

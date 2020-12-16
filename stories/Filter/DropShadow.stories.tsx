@@ -10,7 +10,7 @@ const Template = defineTemplate(DropShadow);
 
 export const Example = defineModule(Template, {
   children: (
-    <div style={{fontWeight: "bolder", color: "white", userSelect: "none"}}>
+    <div style={{fontWeight: "bolder", color: "tomato", userSelect: "none"}}>
       이렇게
     </div>
   ),

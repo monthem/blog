@@ -13,6 +13,9 @@ const containerStyle: CSSProperties = {
   userSelect: "none",
   cursor: "pointer",
   border: "1px solid black",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
 };
 
 type ShadowButtonProps = {
@@ -46,7 +49,7 @@ const ShadowButton: React.FC<ShadowButtonProps> = (props) => {
       shadowAngle={shadowAngle}
       offsetOnHover={offsetOnHover}
       offsetOnIdle={offsetOnIdle}>
-      <div {...divProps} style={{...containerStyle, borderColor: outlineColor, borderWidth: outlineWidth}} />
+      <div {...divProps} style={{...containerStyle, borderColor: outlineColor, borderWidth: outlineWidth, ...style}} />
     </ShadowHoverResponder>
   )
 }

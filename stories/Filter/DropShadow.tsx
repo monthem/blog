@@ -3,6 +3,7 @@ import styled, { CSSProperties } from 'styled-components';
 import {FitContent, InvisibleSvg} from '../_Styled';
 import chroma from 'chroma-js';
 import {v4 as uuidv4} from 'uuid';
+import { animate } from 'popmotion';
 
 export type DropShadowProps = {
   children: React.ReactNode;
@@ -19,6 +20,8 @@ export type DropShadowProps = {
   fixedStep?: number;
   outlineColor?: CSSProperties["backgroundColor"];
   outlineWidth?: number;
+  visible?: boolean;
+  animated?: boolean;
 }
 
 const DropShadow: React.FC<DropShadowProps> = (props) => {
@@ -28,35 +31,26 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
     blurRadius,
     mode,
     offset,
-    interval,
     angle,
     fixedStep,
     outlineColor,
     outlineWidth,
+    visible,
+    animated,
   } = props;
-
+  const interval = Math.max(props.interval, 0)
   const [r,g,b,a] = chroma(shadowColor).gl();
   const [or, og, ob, oa] = chroma(outlineColor).gl();
   const requiedOffestCount = mode === "discrete" 
     ? 1 
-    : fixedStep || Math.max(Math.ceil(offset / interval), 0);
+    : Math.max(fixedStep, 0) || Math.max(Math.ceil(offset / interval), 0);
   const baseDistance = (mode === "discrete" || mode === "continuos" && fixedStep !== undefined) ? offset : interval;
   const dxConstant = baseDistance * Math.cos(angle * Math.PI / 180);
   const dyConstant = baseDistance * Math.sin(angle * Math.PI / 180);
   const nodeId = React.useRef(uuidv4()).current;
   const filterId = `${nodeId}-drop-shadow`;
 
-  const feOffsets = Array(requiedOffestCount).fill(0).map((_, i) => {
-    const multiplier = mode === "continuos" && fixedStep !== undefined ? (i + 1) / fixedStep : (i + 1);
-    return (
-    <feOffset
-      key={`${nodeId}-offOut${i}`}
-      result={`offOut${i}`}
-      in="SourceAlpha"
-      dx={dxConstant * multiplier}
-      dy={dyConstant * multiplier}
-    />
-  )});
+  const [feOffsets, setFeOffests] = React.useState([]);
 
   const feMergeNodesForOffset = Array(requiedOffestCount).fill(0).map((_, i) => (
     <feMergeNode key={`${nodeId}-offOut${i}`} in={`offOut${i}`} />
@@ -67,6 +61,30 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
       ? <feGaussianBlur stdDeviation={blurRadius} /> 
       : <></>
     : <></>;
+
+  React.useEffect(() => {
+    const animation = animate({
+      from: feOffsets.length,
+      to: visible ? requiedOffestCount : 0,
+      duration: animated ? undefined : 0,
+      onUpdate: (latest) => {
+        setFeOffests(Array(Math.round(latest)).fill(0).map((_, i) => {
+          const multiplier = mode === "continuos" && fixedStep !== undefined ? (i + 1) / fixedStep : (i + 1);
+          return (
+          <feOffset
+            key={`${nodeId}-offOut${i}`}
+            result={`offOut${i}`}
+            in="SourceAlpha"
+            dx={dxConstant * multiplier}
+            dy={dyConstant * multiplier}
+          />
+        )}))
+      }
+    })
+    return () => {
+      if (animation) animation.stop();
+    }
+  }, [props])
 
   return (
     <>
@@ -114,6 +132,8 @@ DropShadow.defaultProps = {
   angle: 45,
   outlineColor: "black",
   outlineWidth: 1,
+  visible: true,
+  animated: true,
 }
 
 export default DropShadow
