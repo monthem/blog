@@ -3,7 +3,7 @@ import React from 'react'
 import { v4 } from 'uuid';
 import { FitContent, InvisibleSvg } from '../_Styled';
 
-type GlowProps = {
+export type GlowProps = {
   children: React.ReactNode;
   glow?: boolean;
   /**@param intensity defines glow intensity. from 0 to 1 */
