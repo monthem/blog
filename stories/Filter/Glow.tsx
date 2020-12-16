@@ -96,6 +96,7 @@ Glow.defaultProps = {
   intensity: 0.5,
   blurRadius: 2,
   animated: true,
+  glow: true,
 }
 
 export default Glow

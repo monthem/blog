@@ -15,7 +15,7 @@ export type JoystickProps = {
 }
 
 export default class Joystick extends Component<JoystickProps>{
-  circleRef = React.createRef<SVGCircleElement>();
+  ballRef = React.createRef<SVGCircleElement>();
   padRef = React.createRef<SVGCircleElement>();
   constructor(props) {
     super(props);
@@ -32,15 +32,21 @@ export default class Joystick extends Component<JoystickProps>{
   }
 
   dragStick(e: MouseEvent) {
-    const {circleRef, padRef, props} = this;
-    const {onMove} = props;
+    const {ballRef, padRef, props} = this;
+    const {
+      onMove,
+      strokeWidth,
+    } = props;
     const {
       x: padX,
       y: padY,
       width: padWidth,
       height: padHeight
     } = padRef.current.getBoundingClientRect();
-    const padCenter = {x: padX + padWidth / 2, y: padY + padHeight / 2};
+    const padCenter = {
+      x: padX + padWidth / 2 + strokeWidth / 2,
+      y: padY + padHeight / 2 + strokeWidth / 2
+    };
     const mouseCenter = {x: e.clientX, y: e.clientY};
     const angleToCircle = getAngle({from: padCenter, to: mouseCenter});
     const distance = clampNumber(getDistance({from: padCenter, to: mouseCenter}), 0, padWidth / 2);
@@ -49,11 +55,19 @@ export default class Joystick extends Component<JoystickProps>{
       angle: angleToCircle,
       distance,
     });
-    const rightRatio = clampNumber((mouseCenter.x - padCenter.x) / (padWidth / 2), -1, 1);
-    const downRatio = clampNumber((mouseCenter.y - padCenter.y) / (padHeight / 2), -1, 1);
+    ballRef.current.setAttribute("cx", `${computedPos.x - padX}px`);
+    ballRef.current.setAttribute("cy", `${computedPos.y - padY}px`);
+
+    const {
+      x: ballX,
+      y: ballY,
+      width: ballWidth,
+      height: ballHeight
+    } = ballRef.current.getBoundingClientRect();
+    const ballCenter = {x: ballX + ballWidth / 2 + strokeWidth / 2, y: ballY + ballHeight / 2 + strokeWidth / 2};
+    const rightRatio = clampNumber((ballCenter.x - padCenter.x) / (padWidth / 2), -1, 1);
+    const downRatio = clampNumber((ballCenter.y - padCenter.y) / (padHeight / 2), -1, 1);
     if (onMove) onMove(rightRatio, downRatio);
-    circleRef.current.setAttribute("cx", `${computedPos.x - padX}px`)
-    circleRef.current.setAttribute("cy", `${computedPos.y - padY}px`)
   }
 
   startDrag(e: React.MouseEvent<SVGSVGElement, MouseEvent>) {
@@ -70,7 +84,7 @@ export default class Joystick extends Component<JoystickProps>{
   render() {
     const {
       padRef,
-      circleRef,
+      ballRef,
       startDrag,
     } = this;
 
@@ -101,7 +115,7 @@ export default class Joystick extends Component<JoystickProps>{
           fill="transparent"
         />
         <circle
-          ref={circleRef}
+          ref={ballRef}
           r={stickSize / 2}
           fill={stickColor}
           cx={size / 2}

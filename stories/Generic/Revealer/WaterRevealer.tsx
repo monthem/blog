@@ -2,6 +2,7 @@ import * as popmotion from 'popmotion';
 import React from 'react'
 import {v4 as uuidv4} from 'uuid';
 import {FitContent, InvisibleSvg} from '../../_Styled';
+import BlurRevealer from './BlurRevealer';
 
 type WaterRevealerProps = {
   children: React.ReactNode;
@@ -54,7 +55,7 @@ const WaterRevealer: React.FC<WaterRevealerProps> = (props) => {
         <feDisplacementMap result="displacement" ref={displacementRef} scale="-50" in="SourceGraphic" in2="noise"/>
       </filter>
     </InvisibleSvg>
-    <FitContent ref={containerRef} style={{filter: `url(#${filterId})`}}>
+    <FitContent ref={containerRef} style={{filter: `url(#${filterId})`, opacity: 0}}>
       {children}
     </FitContent>
     </>
