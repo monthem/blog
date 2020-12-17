@@ -1,17 +1,20 @@
 import React from "react";
+import getMatchingScreen from "../utils/layout";
 
-/**
- * @param queries defines css media query in descending order.
- * For example, ["(min-width: 1200px)", "(min-width: 900px)", "(min-width: 600px)"].
- * If matching query exists in front, later query will be ignored.
- * @param values defines returned value.
- * @param defaultValue defines fallback value.
- */
-const useMedia = <T>(queries: string[], values: T[], defaultValue: T) => {
+type UseMediaOption<T> = {
+  [screen in ReturnType<typeof getMatchingScreen>]?: T;
+} & {
+  defaultValue?: T;
+}
+
+const useMedia = <T>(option: UseMediaOption<T>) => {
+  const availableValue = option[Object.values(option).findIndex((value) => value !== undefined)];
+  const defaultValue = option.defaultValue || availableValue;
   const [value, set] = React.useState<T>(defaultValue);
   React.useEffect(() => {
-    const handler = () => {
-      const matchingValue = values[queries.findIndex((query) => matchMedia(query).matches)];
+    const handler = (e: UIEvent) => {
+      const matchingScreen = getMatchingScreen(window.innerWidth);
+      const matchingValue = option[matchingScreen] || defaultValue;
       set(matchingValue);
     }
     window.addEventListener("resize", handler);
