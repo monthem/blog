@@ -69,5 +69,5 @@ export const Example = defineModule(Template, {
       </div>
     )
   },
-  onOrderChanged: (items) => console.log(items)
+  onOrderChangeFinished: (items) => console.log(items),
 });

@@ -17,6 +17,7 @@ export type DraggableListProps<T=any> = {
   items?: T[];
   render?: (item: T, i: number) => JSX.Element;
   onOrderChanged?: (items: T[]) => any;
+  onOrderChangeFinished?: (items: T[]) => any;
 }
 const animatedDivStyle: CSSProperties = {
   width: "fit-content",
@@ -41,6 +42,7 @@ const DraggableList: React.FC<DraggableListProps> = (props) => {
     items = [],
     render,
     onOrderChanged,
+    onOrderChangeFinished,
   } = props;
   const nodeId = React.useRef(v4()).current;
   const order = React.useRef(items.map((_, i) => i));
@@ -109,6 +111,8 @@ const DraggableList: React.FC<DraggableListProps> = (props) => {
       const [originalIndex] = args;
       const spring = springs[originalIndex];
       const newIndex = order.current.indexOf(originalIndex);
+      const changedItems = order.current.map((originalIndex) => items[originalIndex])
+      if (onOrderChangeFinished) onOrderChangeFinished(changedItems)
       spring.set({
         zIndex: newIndex,
       });
