@@ -1,4 +1,4 @@
-import { defineModule, defineStory, defineTemplate } from "../../utils/story";
+import { defineModule, defineStory, defineTemplate } from "../../../utils/story";
 import LegacyDraggableList from "./LegacyDraggableList";
 
 export default defineStory({

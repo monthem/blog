@@ -1,6 +1,6 @@
 import chroma from "chroma-js";
 import { animated, useSpring } from "react-spring";
-import { defineModule, defineStory, defineTemplate } from "../../utils/story";
+import { defineModule, defineStory, defineTemplate } from "../../../utils/story";
 import DraggableList, { DraggableListProps } from "./DraggableList";
 
 export default defineStory({

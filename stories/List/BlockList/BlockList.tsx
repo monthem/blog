@@ -1,7 +1,7 @@
 import chroma from 'chroma-js'
 import React from 'react'
 import { CSSProperties } from 'styled-components'
-import ShadowHoverResponder from '../Responder/HoverResponder/ShadowHoverResponder'
+import ShadowHoverResponder from '../../Responder/HoverResponder/ShadowHoverResponder'
 
 type BlockListEntryProps = {
   text: string;

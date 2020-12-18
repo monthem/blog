@@ -1,5 +1,5 @@
 import chroma from "chroma-js";
-import { defineModule, defineStory, defineTemplate } from "../../utils/story";
+import { defineModule, defineStory, defineTemplate } from "../../../utils/story";
 import BlockList, { BlockListProps } from "./BlockList";
 
 export default defineStory({

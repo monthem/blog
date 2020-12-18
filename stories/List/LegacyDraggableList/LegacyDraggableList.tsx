@@ -43,7 +43,7 @@ const update = (arr: any[], originalIndex: number, newIndex: number) => {
 */
 
 const LegacyDraggableList: React.FC<DraggableListProps> = (props) => {
-  const {items} = props;
+  const {items = []} = props;
   const nodeId = React.useRef(v4()).current;
   const order = React.useRef(items.map((_, index) => index));
   const y = React.useRef(items.map((_, index) => ({

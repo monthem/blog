@@ -1,11 +1,6 @@
 import chroma from "chroma-js";
 import React from "react";
-import { animated, useSpring } from "react-spring";
-import { v4 } from "uuid";
-import useMeasure from "../../hooks/useMeasure";
-import useMedia from "../../hooks/useMedia";
-import { defineModule, defineStory, defineTemplate } from "../../utils/story";
-import GlowHoverResponder from "../Responder/HoverResponder/GlowHoverResponder";
+import { defineModule, defineStory, defineTemplate } from "../../../utils/story";
 import MasonryGrid, { MasonryGridProps } from "./MasonryGrid";
 
 export default defineStory({

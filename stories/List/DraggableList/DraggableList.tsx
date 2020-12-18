@@ -3,92 +3,21 @@ import { animated, useSpring } from 'react-spring';
 import { useGesture } from 'react-use-gesture';
 import { CSSProperties } from 'styled-components';
 import { v4 } from 'uuid';
-import { swap } from '../../utils/array';
+import { swap } from '../../../utils/array';
+import utils, {SizeRect} from './utils';
+const {
+  checkIfOrderChanged,
+  getCurIndex,
+  getCurStartY,
+  updateOrder,
+  getY,
+} = utils;
 
-const updateOrder = (order: number[], originalIndex: number, newIndex: number) => {
-  const result = order.slice(0);
-  const targetEleIndex = order.indexOf(originalIndex);
-  const targetEle = order[targetEleIndex];
-  const prevEle = order[newIndex];
-  result[newIndex] = targetEle;
-  result[targetEleIndex] = prevEle;
-  return result;
-}
-
-const checkIfOrderChanged = (order1: number[], order2: number[]) => {
-  if (order1.length !== order2.length) throw new Error("Item length has been changed!");
-  for (let i = 0; i < order1.length; i += 1) {
-    const ele1 = order1[i];
-    const ele2 = order2[i];
-    if (ele1 !== ele2) return true;
-  }
-  return false;
-}
-
-export type DraggableListProps<T> = {
+export type DraggableListProps<T=any> = {
   items?: T[];
   render?: (item: T, i: number) => JSX.Element;
   onOrderChanged?: (items: T[]) => any;
 }
-
-type SizeRect = Pick<DOMRect, "width" | "height">;
-
-const getY = (rects: SizeRect[], rectIndex: number) => {
-  const result = rects.reduce((acc, rect, i) => {
-    if (i >= rectIndex) return acc;
-    return acc + rect.height;
-  }, 0)
-  return result;
-}
-
-const getYDescription = (updatedOrder: number[], rects: SizeRect[]) => {
-  const reorderedRects = updatedOrder.map((originalIndex) => rects[originalIndex]);
-  const yDescription = reorderedRects.map((rect, i) => {
-    const startY = getY(reorderedRects, i);
-    const endY = i < reorderedRects.length ? getY(reorderedRects, i + 1) : startY + rect.height;
-    return {
-      startY,
-      endY,
-      centerY: (startY + endY) / 2,
-      height: rect.height,
-      width: rect.width,
-    }
-  });
-  return yDescription;
-}
-
-const getCurIndex = (updatedOrder: number[], rects: SizeRect[], originalIndex: number, curY: number) => {
-  const yDescription = getYDescription(updatedOrder, rects);
-  const selectedRect = yDescription[updatedOrder.indexOf(originalIndex)];
-  const direction = curY > selectedRect.startY ? "down" : "up";
-  const curIndex = updatedOrder.indexOf(originalIndex);
-  const compareTargetOriginalIndex = direction === "down" 
-    ? updatedOrder[curIndex < updatedOrder.length - 1 ? curIndex + 1 : curIndex]
-    : originalIndex;
-  const expectedOrder = direction === "down"
-    ? updateOrder(updatedOrder, originalIndex, curIndex < updatedOrder.length - 1 ? curIndex + 1 : curIndex)
-    : updateOrder(updatedOrder, originalIndex, curIndex > 0 ? curIndex - 1 : curIndex);
-  const expectedYDescription = getYDescription(expectedOrder, rects);
-  const expectedThreshold = direction === "down"
-    ? expectedYDescription[expectedOrder.indexOf(compareTargetOriginalIndex)].endY
-    : expectedYDescription[expectedOrder.indexOf(originalIndex)].startY;
-  const hasPassedThreshold = direction === "down"
-    ? curY > expectedThreshold
-    : curY < expectedThreshold;
-  const nextIndex = hasPassedThreshold
-    ? direction === "down"
-      ? curIndex < updatedOrder.length - 1 ? curIndex + 1 : curIndex
-      : curIndex > 0 ? curIndex - 1 : curIndex
-    : curIndex;
-  // const nextOrder = updateOrder(updatedOrder, originalIndex, nextIndex);
-  return nextIndex;
-}
-
-const getCurStartY = (updatedOrder: number[], rects: SizeRect[], targetOriginalIndex: number) => {
-  const yDescription = getYDescription(updatedOrder, rects);
-  return yDescription[updatedOrder.indexOf(targetOriginalIndex)].startY;
-}
-
 const animatedDivStyle: CSSProperties = {
   width: "fit-content",
   height: "fit-content",
@@ -107,9 +36,9 @@ const animatedDivStyle: CSSProperties = {
   So, if you want to apply margin, wrap your component which other div and give some padding to wrapper.
 */
 
-const DraggableList: <T>(props: DraggableListProps<T>) => JSX.Element = (props) => {
+const DraggableList: React.FC<DraggableListProps> = (props) => {
   const {
-    items,
+    items = [],
     render,
     onOrderChanged,
   } = props;
@@ -127,7 +56,10 @@ const DraggableList: <T>(props: DraggableListProps<T>) => JSX.Element = (props) 
     }
   })).current;
   const containerRefs = React.useRef(items.map(() => React.useRef<HTMLDivElement>(null))).current;
-  const rects = React.useRef<SizeRect[]>(items.map(() => null)).current;
+  const rects = React.useRef<SizeRect[]>(items.map(() => ({
+    height: -1,
+    width: -1,
+  }))).current;
   const y = React.useRef(items.map((_, index) => ({
     prevY: -1,
     curY: -1,
@@ -196,6 +128,7 @@ const DraggableList: <T>(props: DraggableListProps<T>) => JSX.Element = (props) 
 
   React.useEffect(() => {
     containerRefs.forEach((ref, originalIndex) => {
+      if (!ref.current) return;
       rects[originalIndex] = ref.current.getBoundingClientRect()
       const yRef = y[originalIndex];
       yRef.prevY = getY(rects, originalIndex);
@@ -221,6 +154,10 @@ const DraggableList: <T>(props: DraggableListProps<T>) => JSX.Element = (props) 
       })}
     </>
   )
+}
+
+DraggableList.defaultProps = {
+  items: [],
 }
 
 export default DraggableList
