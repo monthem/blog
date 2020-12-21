@@ -4,7 +4,6 @@ import { v4 } from 'uuid';
 import { FitContent, InvisibleSvg } from '../_Styled';
 
 export type GlowProps = {
-  children: React.ReactNode;
   glow?: boolean;
   /**@param intensity defines glow intensity. from 0 to 1 */
   intensity?: number;
@@ -30,7 +29,7 @@ const Glow: React.FC<GlowProps> = (props) => {
 
   React.useEffect(() => {
     const animation = animate({
-      from: outlineColorMatrix.current.getAttribute("values"),
+      from: outlineColorMatrix.current?.getAttribute("values") || "0",
       to: `
         1.5 0 0 0 0
         0 1.5 0 0 0
@@ -39,8 +38,8 @@ const Glow: React.FC<GlowProps> = (props) => {
       `,
       duration: animated ? undefined : 0,
       onUpdate: (latest) => {
-        outlineColorMatrix.current.setAttribute("values", latest);
-        contentColorMatrix.current.setAttribute("values", latest);
+        outlineColorMatrix.current?.setAttribute("values", latest);
+        contentColorMatrix.current?.setAttribute("values", latest);
       }
     })
     return () => {

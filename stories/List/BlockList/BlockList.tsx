@@ -4,7 +4,7 @@ import { CSSProperties } from 'styled-components'
 import ShadowHoverResponder from '../../Responder/HoverResponder/ShadowHoverResponder'
 
 type BlockListEntryProps = {
-  text: string;
+  text?: string;
   style?: CSSProperties;
   shadowColor?: CSSProperties["backgroundColor"];
   shadowOutlineColor?: CSSProperties["backgroundColor"];

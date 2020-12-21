@@ -2,8 +2,7 @@ import React from 'react'
 import { animated, useSpring } from 'react-spring';
 import styled from 'styled-components';
 
-type BlurRevealerProps = {
-  children: React.ReactNode;
+export type BlurRevealerProps = {
   visible?: boolean;
   blurRadius?: number;
 }

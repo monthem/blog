@@ -9,18 +9,18 @@ const origin = {
   border: "10px solid white",
 }
 
-type Card3dProps = {
-  src: HTMLImageElement["src"];
+export type Card3dProps = {
+  src?: HTMLImageElement["src"];
 }
 
 const Card3d: React.FC<Card3dProps> = (props) => {
   const {src} = props; 
   const [cardStyle, set] = useSpring(() => origin)
   
-  const imgRef = React.useRef<HTMLImageElement>();
+  const imgRef = React.useRef<HTMLImageElement>(null);
 
   const trackMouse = (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => {
-    const {left, top, width, height} = imgRef.current.getBoundingClientRect()
+    const {left, top, width, height} = imgRef.current?.getBoundingClientRect() || {left: 0, top: 0, width: 0, height: 0};
     const {clientX, clientY} = e;
     const relativeX = (clientX - left) / width;
     const relativeY = (clientY - top) / height;

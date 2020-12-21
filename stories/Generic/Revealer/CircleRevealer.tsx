@@ -4,8 +4,7 @@ import { CSSProperties } from 'styled-components';
 import { v4 } from 'uuid';
 import { FitContent, InvisibleSvg } from '../../_Styled';
 
-type CircleRevealerProps = {
-  children: React.ReactNode;
+export type CircleRevealerProps = {
   visible?: boolean;
 }
 
@@ -24,7 +23,7 @@ const CircleRevealer: React.FC<CircleRevealerProps> = (props) => {
   }))
 
   React.useEffect(() => {
-    const rect = containerRef.current.getBoundingClientRect();
+    const rect = containerRef.current?.getBoundingClientRect() || {width: 0, height: 0};
     const {width, height} = rect;
     const diagonalLength = Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
     setCircleSpring({

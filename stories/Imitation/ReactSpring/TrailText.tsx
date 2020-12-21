@@ -12,7 +12,7 @@ const StyledAnimatedText = styled(animated.div)`
 `
 
 type TrailTextProps = {
-  texts: string[];
+  texts?: string[];
   direction?: CSSProperties["flexDirection"];
 }
 
@@ -29,7 +29,7 @@ const slow: SpringConfig = {
 
 //Difference: Used clipPath for masking element.
 const TrailText: React.FC<TrailTextProps> = (props) => {
-  const {texts, direction} = props;
+  const {texts = ["Lorem", "Ipsum", "Dolor", "Sit"], direction} = props;
   const colors = ["#88a631", "#47baf4", "#4b9585", "#e9992e"];
   const [reveal, setReveal] = React.useState(true);
   const responsiveStyle: CSSProperties = direction === "row"

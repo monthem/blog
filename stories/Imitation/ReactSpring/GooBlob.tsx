@@ -10,18 +10,22 @@ type GooOption = {
   color: string;
 }
 
-type GooBlobProps = {
-  goos: GooOption[];
+export type GooBlobProps = {
+  goos?: GooOption[];
 }
 
 //Difference: takes multiple goos, alpha channel is clamped for crisp edges. Used different colors
 const fast: SpringConfig = { tension: 1200, friction: 40 };
 const slow: SpringConfig = { mass: 10, tension: 200, friction: 50 };
-const trans = (x, y) => `translate3d(${x}px,${y}px,0) translate3d(-50%,-50%,0)`;
+const trans = (x: number, y: number) => `translate3d(${x}px,${y}px,0) translate3d(-50%,-50%,0)`;
 const stdDeviation = 20;
 
 const GooBlob: React.FC<GooBlobProps> = (props) => {
-  const {goos} = props;
+  const {goos = [
+    {color: "tomato", size: 120},
+    {color: "dodgerblue", size: 200},
+    {color: "mediumseagreen", size: 160},
+  ]} = props;
   const [trail, set] = useTrail(goos.length, () => ({
     xy: [0, 0],
     config: (i: number) => i === 0 ? fast : slow,

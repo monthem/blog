@@ -41,7 +41,7 @@ type MaskedDivProps = {
 }
 
 const MaskedDiv = styled.div<MaskedDivProps>`
-  clip-path: ${({maskShape, visible}) => visible ? clipPath[maskShape].to : clipPath[maskShape].from};
+  clip-path: ${({maskShape = "rectangleFromTop", visible}) => visible ? clipPath[maskShape].to : clipPath[maskShape].from};
   width: fit-content;
   transition: clip-path 0.6s cubic-bezier(0.16, 1, 0.3, 1), background-color 1s;
   background-color: ${({backgroundColor}) => backgroundColor};
@@ -49,7 +49,7 @@ const MaskedDiv = styled.div<MaskedDivProps>`
   will-change: clip-path;
 `;
 
-type ShapeRevealerProps = MaskedDivProps & {
+export type ShapeRevealerProps = MaskedDivProps & {
   children?: React.ReactNode;
   precedingColor?: CSSProperties["backgroundColor"];
   backgroundColorOnEnd?: CSSProperties["backgroundColor"];
@@ -57,7 +57,14 @@ type ShapeRevealerProps = MaskedDivProps & {
 };
 
 const ShapeRevealer: React.FC<ShapeRevealerProps> = (props) => {
-  const {children, visible, delay, maskShape, backgroundColorOnEnd, style} = props;
+  const {
+    children,
+    visible,
+    delay=200,
+    maskShape="rectangleFromTop",
+    backgroundColorOnEnd="violet",
+    style,
+  } = props;
   const [precedingColor, setPrecedingColor] = React.useState(props.precedingColor);
   const [backgroundColor, setBackgroundColor] = React.useState(props.backgroundColor);
 
@@ -80,13 +87,6 @@ const ShapeRevealer: React.FC<ShapeRevealerProps> = (props) => {
       </MaskedDiv>
     </div>
   )
-}
-
-ShapeRevealer.defaultProps = {
-  maskShape: "triangle",
-  backgroundColor: "red",
-  precedingColor: "blue",
-  backgroundColorOnEnd: "violet",
 }
 
 export default ShapeRevealer

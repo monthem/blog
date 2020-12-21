@@ -6,7 +6,6 @@ import {v4 as uuidv4} from 'uuid';
 import { animate } from 'popmotion';
 
 export type DropShadowProps = {
-  children: React.ReactNode;
   shadowColor?: CSSProperties["backgroundColor"];
   /**@param blurRadius works on discrete mode */
   blurRadius?: number;
@@ -27,18 +26,18 @@ export type DropShadowProps = {
 const DropShadow: React.FC<DropShadowProps> = (props) => {
   const {
     children,
-    shadowColor,
-    blurRadius,
-    mode,
-    offset,
-    angle,
-    fixedStep,
-    outlineColor,
-    outlineWidth,
-    visible,
-    animated,
+    shadowColor = "rgba(0,0,0,0.5)",
+    blurRadius = 0,
+    mode = "continuos",
+    offset = 10,
+    angle = 45,
+    fixedStep = 5,
+    outlineColor = "blue",
+    outlineWidth = 1,
+    visible = true,
+    animated = true,
   } = props;
-  const interval = Math.max(props.interval, 0)
+  const interval = Math.max(props.interval || 1, 0)
   const [r,g,b,a] = chroma(shadowColor).gl();
   const [or, og, ob, oa] = chroma(outlineColor).gl();
   const requiedOffestCount = mode === "discrete" 
@@ -50,17 +49,15 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
   const nodeId = React.useRef(uuidv4()).current;
   const filterId = `${nodeId}-drop-shadow`;
 
-  const [feOffsets, setFeOffests] = React.useState([]);
+  const [feOffsets, setFeOffests] = React.useState<React.SVGProps<SVGFEOffsetElement>[]>([]);
 
   const feMergeNodesForOffset = Array(requiedOffestCount).fill(0).map((_, i) => (
     <feMergeNode key={`${nodeId}-offOut${i}`} in={`offOut${i}`} />
   ))
 
-  const blur = mode === "discrete" 
-    ? blurRadius > 0 
-      ? <feGaussianBlur stdDeviation={blurRadius} /> 
-      : <></>
-    : <></>;
+  const blur = blurRadius > 0 
+    ? <feGaussianBlur result="blurred" in="shadow" stdDeviation={blurRadius} /> 
+    : <></>
 
   React.useEffect(() => {
     const animation = animate({
@@ -111,9 +108,9 @@ const DropShadow: React.FC<DropShadowProps> = (props) => {
           0 0 1 0 ${ob}
           0 0 0 ${oa} 0
         `} />
-        {blur}
         <feComposite result="shadow" in="colored-outline" in2="colored-shadow" operator="over" />
-        <feBlend in="SourceGraphic" in2="shadow" mode="normal" />
+        {blur}
+        <feBlend in="SourceGraphic" in2={blurRadius > 0 ? "blurred" : "shadow"} mode="normal" />
       </filter>
     </InvisibleSvg>
     <FitContent style={{filter: `url(#${filterId})`}}>

@@ -4,6 +4,7 @@ import React from 'react'
 import { AnimatedValue, OpaqueInterpolation } from 'react-spring';
 import { CSSProperties } from 'styled-components';
 import { v4 } from 'uuid';
+import { isAllTrue, isAny } from '../../utils/condition';
 import { getNewPos } from '../../utils/number';
 import { FitContent, InvisibleSvg } from '../_Styled';
 import Glow from './Glow';
@@ -32,8 +33,7 @@ export const getCopperEdgePath = (option: PathOption) => {
   `
 }
 
-type CopperEdgeProps = {
-  children: React.ReactNode;
+export type CopperEdgeProps = {
   edgeColor?: CSSProperties["backgroundColor"];
   lightColor?: CSSProperties["backgroundColor"];
   visible?: boolean;
@@ -47,17 +47,17 @@ const CopperEdge: React.FC<CopperEdgeProps> = (props) => {
   const {
     children,
     edgeColor,
-    edgeWidth,
+    edgeWidth = 5,
     visible,
-    lightAngle,
+    lightAngle = 45,
     lightColor,
   } = props;
-  const edgeRadius = Math.max(props.edgeRadius, 0);
+  const edgeRadius = Math.max(props.edgeRadius || 5, 0);
   const nodeId = React.useRef(v4()).current;
   const filterId = `${nodeId}-copper-edge`;
   const clipPathId = `${nodeId}-coppet-edge-clip-path`;
   const containerRef = React.useRef<HTMLDivElement>(null);
-  const [rect, setRect] = React.useState<DOMRect>(null);
+  const [rect, setRect] = React.useState<Pick<DOMRect, "width" | "height">>({width: 0, height: 0});
   const mainErodeRef = React.useRef<SVGFEMorphologyElement>(null);
   const innerErodeRef = React.useRef<SVGFEMorphologyElement>(null);
   const outerErodeRef = React.useRef<SVGFEMorphologyElement>(null);
@@ -79,9 +79,14 @@ const CopperEdge: React.FC<CopperEdgeProps> = (props) => {
   })
 
   React.useEffect(() => {
-    const capturedRect = containerRef.current.getBoundingClientRect();
-    if (!rect || JSON.stringify(capturedRect.toJSON()) !== JSON.stringify(rect.toJSON())) {
-      const rect = containerRef.current.getBoundingClientRect();
+    const capturedRect = containerRef.current?.getBoundingClientRect();
+    const haveToUpdateRect = isAny([
+      capturedRect?.width !== rect.width && capturedRect?.height !== rect.height,
+      !rect,
+    ])
+
+    if (containerRef.current && haveToUpdateRect) {
+      const rect = containerRef.current?.getBoundingClientRect();
       setRect(rect);
     }
 
@@ -91,10 +96,10 @@ const CopperEdge: React.FC<CopperEdgeProps> = (props) => {
       duration: props.animated ? undefined : 0,
       onUpdate: (progress) => {
         edgeAnimationProgress.current = progress;
-        mainErodeRef.current.setAttribute("radius", String(edgeWidth * progress));
-        innerErodeRef.current.setAttribute("radius", String((edgeWidth - 1) * progress));
-        outerErodeRef.current.setAttribute("radius", String(1 * progress));
-        clipPathRef.current.setAttribute("d", getCopperEdgePath({
+        mainErodeRef.current?.setAttribute("radius", String(edgeWidth * progress));
+        innerErodeRef.current?.setAttribute("radius", String((edgeWidth - 1) * progress));
+        outerErodeRef.current?.setAttribute("radius", String(1 * progress));
+        clipPathRef.current?.setAttribute("d", getCopperEdgePath({
           width: rect?.width,
           height: rect?.height,
           r: edgeRadius * progress,

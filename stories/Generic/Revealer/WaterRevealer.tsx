@@ -1,11 +1,10 @@
 import * as popmotion from 'popmotion';
-import React from 'react'
+import React, { PropsWithChildren } from 'react'
 import {v4 as uuidv4} from 'uuid';
 import {FitContent, InvisibleSvg} from '../../_Styled';
 import BlurRevealer from './BlurRevealer';
 
 type WaterRevealerProps = {
-  children: React.ReactNode;
   visible?: boolean;
 }
 
@@ -21,30 +20,29 @@ const WaterRevealer: React.FC<WaterRevealerProps> = (props) => {
   const noiseSeed = React.useRef(Math.ceil(Math.random() * 100)).current;
   const nodeId = React.useRef(uuidv4()).current;
   const filterId = `${nodeId}-drop-water`;
-  
 
   React.useEffect(() => {
-    const rippleAnimation = visible ? popmotion.animate({
-      to: displacementScaleAnimation,
+    const rippleAnimation = popmotion.animate({
+      to: visible ? displacementScaleAnimation : displacementScaleAnimation.slice(0).reverse(),
       duration: 1000,
       ease: popmotion.linear,
       onUpdate: (latest) => {
-        displacementRef.current.setAttribute("scale", latest);
+        displacementRef.current?.setAttribute("scale", latest);
       },
-    }) : undefined;
+    });
     const opacityAnimation = popmotion.animate({
-      from: containerRef.current.style.getPropertyValue("opacity") || "0",
+      from: containerRef.current?.style.getPropertyValue("opacity") || "0",
       to: visible ? "1" : "0",
       duration: visible ? 1000 : 500,
       onUpdate: (latest) => {
-        containerRef.current.style.setProperty("opacity", latest)
+        containerRef.current?.style.setProperty("opacity", latest)
       }
     });
     return () => {
       if (rippleAnimation) rippleAnimation.stop();
       opacityAnimation.stop();
     }
-  })
+  }, [visible])
 
 
   return (
